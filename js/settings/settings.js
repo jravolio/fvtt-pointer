@@ -327,7 +327,7 @@ export class PointerSettingsMenu extends FormApplication {
 		});
 
 		chooser.querySelectorAll('input').forEach((e) =>
-			e.addEventListener('change', (ev) => {
+			e.addEventListener('change', async (ev) => {
 				ev.preventDefault();
 				ev.stopPropagation();
 				const target = ev.currentTarget;
@@ -339,8 +339,8 @@ export class PointerSettingsMenu extends FormApplication {
 					checkbox.checked = false;
 				}
 
+				await this._onSubmit(ev);
 				updateCanvas()
-				this._onSubmit(ev);
 			})
 		);
 
@@ -349,7 +349,8 @@ export class PointerSettingsMenu extends FormApplication {
 			const collection = game.settings.get('pointer', 'collection');
 			const pointerData = collection.find((e) => e.id === pointerId) || collection[0];
 			pointerData.position = new PIXI.Point(this._pixiApp.view.width / 2, this._pixiApp.view.height / 2);
-			// removing last pointer
+			
+			// Removing last pointer
 			this._pixiApp.stage.removeChild(this._pixiApp.stage.children[2])
 		
 			const pointer = new Pointer(pointerData, game.user.id, this.options.gridSize);
@@ -533,8 +534,6 @@ export class PointerSettingsMenu extends FormApplication {
 
 	async _updateObject(event, formData) {
 		const data = expandObject(formData);
-		console.log('esse é o data dentro do updateObject')
-		console.log(data)
 		if (this.canConfigure) {
 			this.pointer.save();
 			data.pointer.img = this.pointer.data.img;
