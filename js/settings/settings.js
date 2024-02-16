@@ -334,11 +334,27 @@ export class PointerSettingsMenu extends FormApplication {
 				const list = target.closest('.chooser');
 				const checkboxes = Array.from(list.querySelectorAll(`input[name=${target.name}]`)).filter((e) => e !== target);
 				target.checked = true;
+				
 				for (let checkbox of checkboxes) {
 					checkbox.checked = false;
 				}
+
+				updateCanvas()
+				this._onSubmit(ev);
 			})
 		);
+
+		const updateCanvas = () => {
+			const pointerId = this.userData.pointer;
+			const collection = game.settings.get('pointer', 'collection');
+			const pointerData = collection.find((e) => e.id === pointerId) || collection[0];
+			pointerData.position = new PIXI.Point(this._pixiApp.view.width / 2, this._pixiApp.view.height / 2);
+			// removing last pointer
+			this._pixiApp.stage.removeChild(this._pixiApp.stage.children[2])
+		
+			const pointer = new Pointer(pointerData, game.user.id, this.options.gridSize);
+			this._pixiApp.stage.addChild(pointer);
+		};
 
 		if (!game.user.isGM) return;
 
@@ -517,8 +533,10 @@ export class PointerSettingsMenu extends FormApplication {
 
 	async _updateObject(event, formData) {
 		const data = expandObject(formData);
+		console.log('esse é o data dentro do updateObject')
+		console.log(data)
 		if (this.canConfigure) {
-			// this.pointer.save();
+			this.pointer.save();
 			data.pointer.img = this.pointer.data.img;
 			const pointer = new Pointer(data.pointer);
 			pointer.save();
@@ -572,7 +590,6 @@ export class PointerSettingsMenu extends FormApplication {
 
 		this.pointer = stage.addChild(new Pointer(pointerData, game.user.id, this.options.gridSize));
 	}
-
 	_designerInputChange(ev) {
 		ev.stopPropagation();
 		ev.preventDefault();
