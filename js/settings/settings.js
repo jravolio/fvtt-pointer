@@ -492,7 +492,11 @@ export class PointerSettingsMenu extends FormApplication {
 			selectedPointer = data.collection[0];
 			userSettings.pointer = selectedPointer.id;
 		}
-		selectedPointer.selectedAsPointer = true;
+
+		data.collection.forEach(pointer => {
+			pointer.selectedAsPointer = pointer.id === userSettings.pointer;
+		});
+
 		data.pixi = selectedPointer;
 
 		let selectedPing = data.collection.find((e) => e.id === userSettings.ping);
@@ -500,6 +504,11 @@ export class PointerSettingsMenu extends FormApplication {
 			selectedPing = data.collection[1] || data.collection[0];
 			userSettings.ping = selectedPing.id;
 		}
+		
+		data.collection.forEach(ping => {
+			ping.selectedAsPing = ping.id === userSettings.ping;
+		});
+
 		selectedPing.selectedAsPing = true;
 
 		data.isGM = game.user.isGM;
@@ -521,6 +530,7 @@ export class PointerSettingsMenu extends FormApplication {
 		const pingId = chooser.querySelector('input[name="selectedAsPing"]:checked').closest('li').dataset.pointerId;
 		settings.ping = pingId;
 		const pointerId = chooser.querySelector('input[name="selectedAsPointer"]:checked').closest('li').dataset.pointerId;
+		console.log(pointerId)
 		settings.pointer = pointerId;
 
 		await game.user.setFlag('pointer', 'settings', settings);
