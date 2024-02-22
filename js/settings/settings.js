@@ -400,7 +400,6 @@ export class PointerSettingsMenu extends FormApplication {
 
 		const designer = this.form.querySelector('.designer');
 		const flatData = flattenObject(pointerData);
-		console.log(flatData);
 		for (let key of Object.keys(flatData)) {
 			const inp = designer.querySelector(`input[name="pointer.${key}"]`);
 			if (!inp) continue;
@@ -538,7 +537,7 @@ export class PointerSettingsMenu extends FormApplication {
 			this.pointer.save();
 			data.pointer.img = this.pointer.data.img;
 			const pointer = new Pointer(data.pointer);
-			pointer.save();
+			this.pointer.save(data.pointer);
 		}
 		if (event.currentTarget?.closest('.designer')) return;
 		let settings = duplicate(this.userData);
@@ -547,9 +546,7 @@ export class PointerSettingsMenu extends FormApplication {
 		const pingId = chooser.querySelector('input[name="selectedAsPing"]:checked').closest('li').dataset.pointerId;
 		settings.ping = pingId;
 		const pointerId = chooser.querySelector('input[name="selectedAsPointer"]:checked').closest('li').dataset.pointerId;
-		console.log(pointerId)
 		settings.pointer = pointerId;
-
 		await game.user.setFlag('pointer', 'settings', settings);
 		this.render();
 	}
@@ -612,6 +609,12 @@ export class PointerSettingsMenu extends FormApplication {
 				await this.render();
 				this._selectPointer(pointerData);
 			}
+			
+			// Update only the pointer object with the changes
+			const collection = game.settings.get('pointer', 'collection');
+			const pointerId = this.userData.pointer;
+			const pointerData = collection.find((e) => e.id === pointerId);
+			pointerData[prop] = val; // Apply the changes to the pointer data
 		});
 	}
 
